@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: show-workspace-task
+  namespace: nexus-pipelines
+spec:
+  steps:
+    - command:
+        - /bin/bash
+        - '-c'
+        - ls -la /workspace/output
+      image: registry.redhat.io/ubi7/ubi-minimal
+      name: ''
+      resources: {}
+  workspaces:
+    - name: output

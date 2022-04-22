@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nexus-cli-scan-task
+  namespace: nexus-pipelines
+spec:
+  steps:
+    - args:
+        - '-s'
+        - 'http://iq-route-openshift-operators.apps.cluster-sq62r.sq62r.sandbox601.opentlc.com/'
+        - '-i'
+        - test
+        - '-a'
+        - 'admin:admin123'
+        - '-r'
+        - /workspace/nexus-cli-workspace/target/result.json
+        - /workspace/nexus-cli-workspace/target/path-history-0.2-SNAPSHOT.jar
+      command:
+        - /sonatype/evaluate
+      image: 'docker.io/sonatype/nexus-iq-cli:latest'
+      resources: {}
+  workspaces:
+    - name: nexus-cli-workspace

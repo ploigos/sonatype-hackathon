@@ -1,0 +1,74 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: koray-pipeline
+  namespace: nexus-pipelines
+spec:
+  workspaces:
+    - name: koray-pipeline-workspace
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: 'https://github.com/koraytugay/path-history'
+        - name: submodules
+          value: 'true'
+        - name: depth
+          value: '1'
+        - name: sslVerify
+          value: 'false'
+        - name: deleteExisting
+          value: 'true'
+        - name: verbose
+          value: 'true'
+        - name: gitInitImage
+          value: >-
+            gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.29.0
+        - name: userHome
+          value: /tekton/home
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace:  koray-pipeline-workspace
+    - name: maven
+      params:
+        - name: MAVEN_IMAGE
+          value: >-
+            gcr.io/cloud-builders/mvn@sha256:57523fc43394d6d9d2414ee8d1c85ed7a13460cbb268c3cd16d28cfb3859e641
+        - name: GOALS
+          value:
+            - package
+        - name: PROXY_PROTOCOL
+          value: http
+        - name: CONTEXT_DIR
+          value: .
+      runAfter:
+        - git-clone
+      taskRef:
+        kind: ClusterTask
+        name: maven
+      workspaces:
+        - name: source
+          workspace:  koray-pipeline-workspace
+        - name: maven-settings
+          workspace:  koray-pipeline-workspace
+    - name: nexus-cli-scan
+      runAfter:
+        - maven
+      taskRef:
+        kind: Task
+        name: nexus-cli-scan-task
+      workspaces:
+        - name: nexus-cli-workspace
+          workspace: koray-pipeline-workspace
+    - name: nexus-cli-sbom-download
+      runAfter:
+        - nexus-cli-scan
+      taskRef:
+        kind: Task
+        name: nexus-cli-download-sbom-task
+      workspaces:
+        - name: nexus-cli-sbom-workspace
+          workspace: koray-pipeline-workspace

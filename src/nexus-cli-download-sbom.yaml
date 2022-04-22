@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: nexus-cli-download-sbom-task
+  namespace: nexus-pipelines
+spec:
+  steps:
+    - script: |
+         #!/usr/bin/env bash
+         pwd
+         wget --header 'Authorization: Basic YWRtaW46YWRtaW4xMjM=' http://iq-route-openshift-operators.apps.cluster-sq62r.sq62r.sandbox601.opentlc.com/api/v2/cycloneDx/1.2/49fdb84af47e44e58826ecd8f70a7177/reports/547c4ed839764b43b1978dce24d63f27 -O /workspace/nexus-cli-sbom-workspace/sbom.xml
+         ls -la ./workspace/nexus-cli-sbom-workspace/sbom.xml
+      image: docker.io/sonatype/nexus-iq-cli:latest
+      resources: {}
+  workspaces:
+    - name: nexus-cli-sbom-workspace
