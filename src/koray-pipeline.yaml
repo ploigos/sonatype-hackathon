@@ -1,11 +1,27 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+  creationTimestamp: '2022-05-02T13:11:07Z'
+  generation: 3
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:spec':
+          .: {}
+          'f:finally': {}
+          'f:params': {}
+          'f:resources': {}
+          'f:tasks': {}
+          'f:workspaces': {}
+      manager: Mozilla
+      operation: Update
+      time: '2022-05-02T14:09:06Z'
   name: koray-pipeline
   namespace: nexus-pipelines
+  resourceVersion: '807641'
+  uid: b7e66217-38c5-4f5b-9ea3-4ab53a685661
 spec:
-  workspaces:
-    - name: koray-pipeline-workspace
   tasks:
     - name: git-clone
       params:
@@ -31,7 +47,7 @@ spec:
         name: git-clone
       workspaces:
         - name: output
-          workspace:  koray-pipeline-workspace
+          workspace: koray-pipeline-workspace
     - name: maven
       params:
         - name: MAVEN_IMAGE
@@ -51,10 +67,23 @@ spec:
         name: maven
       workspaces:
         - name: source
-          workspace:  koray-pipeline-workspace
+          workspace: koray-pipeline-workspace
         - name: maven-settings
-          workspace:  koray-pipeline-workspace
+          workspace: koray-pipeline-workspace
     - name: nexus-cli-scan
+      params:
+        - name: SERVER_URL
+          value: >-
+            http://iq-route-nexus-pipelines.apps.cluster-98r86.98r86.sandbox572.opentlc.com
+        - name: AUTHENTICATION
+          value: 'admin:admin123'
+        - name: APPLICATION_ID
+          value: test-app
+        - name: RESULT_FILE
+          value: /workspace/nexus-cli-workspace/target/result.json
+        - name: TARGETS
+          value: |
+            /workspace/nexus-cli-workspace/target/path-history-0.2-SNAPSHOT.jar
       runAfter:
         - maven
       taskRef:
@@ -72,3 +101,5 @@ spec:
       workspaces:
         - name: nexus-cli-sbom-workspace
           workspace: koray-pipeline-workspace
+  workspaces:
+    - name: koray-pipeline-workspace
