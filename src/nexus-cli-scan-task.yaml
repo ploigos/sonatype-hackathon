@@ -95,9 +95,7 @@ spec:
         #!/usr/bin/env bash
 
         /sonatype/evaluate -s ${SERVER_URL} -i ${APPLICATION_ID} -a
-        ${AUTHENTICATION} -t ${STAGE} -r ${RESULT_FILE} ${TARGETS}
-
-        ${SERVER_URL} | tee $(results.server-url.path)        
+        ${AUTHENTICATION} -t ${STAGE} -r ${RESULT_FILE} ${TARGETS}      
   workspaces:
     - description: The workspace used by this task
       name: nexus-cli-workspace
