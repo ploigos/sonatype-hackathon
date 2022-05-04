@@ -1,23 +1,117 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
+  creationTimestamp: '2022-05-02T13:11:36Z'
+  generation: 25
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:spec':
+          .: {}
+          'f:params': {}
+          'f:results': {}
+          'f:steps': {}
+          'f:workspaces': {}
+      manager: Mozilla
+      operation: Update
+      time: '2022-05-04T14:28:15Z'
   name: nexus-cli-scan-task
   namespace: nexus-pipelines
+  resourceVersion: '2025984'
+  uid: 10091589-b259-4817-b97a-f345ba6ad7a7
 spec:
+  params:
+    - default: 'http://localhost:8070'
+      description: URL to the IQ Server that will evaluate policies
+      name: SERVER_URL
+      type: string
+    - default: ''
+      description: Authentication credentials to use for the IQ Server
+      name: AUTHENTICATION
+      type: string
+    - default: ''
+      description: Public ID of the application on the IQ Server
+      name: APPLICATION_ID
+      type: string
+    - default: build
+      description: >-
+        The stage to run analysis against. Accepted values: develop | build |
+        stage-release | release | operate. Default: build
+      name: STAGE
+      type: string
+    - default: ''
+      description: >-
+        Path to a JSON file where the results of the policy evaluation will be
+        stored in a machine-readable format. Default: none
+      name: RESULT_FILE
+      type: string
+    - default: ''
+      description: >-
+        Introduced in 1.125.0-04a: The format of the HTML evaluation report.
+        Accepted values: summary | enhanced. Default: enhanced
+      name: REPORT_FORMAT
+      type: string
+    - default: ''
+      description: 'Fail on policy evaluation warnings. Default: false'
+      name: FAIL_ON_POLICY_WARNINGS
+      type: string
+    - default: ''
+      description: 'Ignore system errors (IO, network, server, etc). Default: false'
+      name: IGNORE_SYSTEM_ERRORS
+      type: string
+    - default: ''
+      description: 'Proxy to use. Default: none'
+      name: PROXY
+      type: string
+    - default: ''
+      description: 'Credentials to use for the proxy. Default: none'
+      name: PROXY_USER
+      type: string
+    - default: ''
+      description: >-
+        Enable debug logs. WARNING: This may expose sensitive information in the
+        log. Default: false
+      name: DEBUG
+      type: string
+    - default: ''
+      description: 'Show the help screen. Default: false'
+      name: HELP
+      type: string
+    - default: ''
+      description: Scan targets
+      name: TARGETS
+      type: string
+  results:
+    - description: The server url
+      name: server-url
   steps:
-    - args:
-        - '-s'
-        - 'http://iq-route-openshift-operators.apps.cluster-sq62r.sq62r.sandbox601.opentlc.com/'
-        - '-i'
-        - test
-        - '-a'
-        - 'admin:admin123'
-        - '-r'
-        - /workspace/nexus-cli-workspace/target/result.json
-        - /workspace/nexus-cli-workspace/target/path-history-0.2-SNAPSHOT.jar
-      command:
-        - /sonatype/evaluate
+    - env:
+        - name: SERVER_URL
+          value: $(params.SERVER_URL)
+        - name: APPLICATION_ID
+          value: $(params.APPLICATION_ID)
+        - name: AUTHENTICATION
+          value: $(params.AUTHENTICATION)
+        - name: RESULT_FILE
+          value: $(params.RESULT_FILE)
+        - name: STAGE
+          value: $(params.STAGE)
+        - name: TARGETS
+          value: $(params.TARGETS)
       image: 'docker.io/sonatype/nexus-iq-cli:latest'
+      name: ''
       resources: {}
+      script: >
+        #!/usr/bin/env bash
+
+        /sonatype/evaluate -s ${SERVER_URL} -i ${APPLICATION_ID} -a
+        ${AUTHENTICATION} -t ${STAGE} -r ${RESULT_FILE} ${TARGETS}
+
+        ${SERVER_URL} | tee $(results.server-url.path)        
   workspaces:
-    - name: nexus-cli-workspace
+    - description: The workspace used by this task
+      name: nexus-cli-workspace
+    - description: The workspace that will store the bill of materials file as 'sbom.xml'
+      name: output
+      optional: true
