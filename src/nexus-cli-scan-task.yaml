@@ -2,6 +2,10 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: nexus-cli-scan-task
+  annotations:
+    tekton.dev/categories: Cli, Continuous Integration, Developer Tools, Security
+    tekton.dev/tags: sonatype, nexus, iq, sbom
+    tekton.dev/displayName: "Sonatype Nexus IQ Scan"
 spec:
   params:
     - default: 'http://localhost:8070'
