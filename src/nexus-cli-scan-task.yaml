@@ -7,6 +7,9 @@ metadata:
     tekton.dev/tags: sonatype, nexus, iq, sbom
     tekton.dev/displayName: "Sonatype Nexus IQ Scan"
 spec:
+  description: >-
+    This task uses the Sonatype Nexus Cli to invoke a Nexus Lifecycle scan.
+
   params:
     - default: 'http://localhost:8070'
       description: URL to the IQ Server that will evaluate policies
